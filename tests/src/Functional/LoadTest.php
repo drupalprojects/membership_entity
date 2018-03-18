@@ -1,45 +1,46 @@
 <?php
+declare(strict_types=1);
 
 namespace Drupal\Tests\membership_entity\Functional;
 
 use Drupal\Core\Url;
-use Drupal\Tests\BrowserTestBase;
 
 /**
- * Simple test to ensure that main page loads with module enabled.
+ * Simple test to ensure that main pages load with module enabled.
  *
- * @group membership_entity
+ * @group MembershipEntity
  */
-class LoadTest extends BrowserTestBase {
-
-  /**
-   * Modules to enable.
-   *
-   * @var array
-   */
-  public static $modules = ['membership_entity'];
-
-  /**
-   * A user with permission to administer site configuration.
-   *
-   * @var \Drupal\user\UserInterface
-   */
-  protected $user;
+class LoadTest extends MembershipTestBase {
 
   /**
    * {@inheritdoc}
    */
   protected function setUp() {
     parent::setUp();
-    $this->user = $this->drupalCreateUser(['administer site configuration', 'administer membership entities']);
-    $this->drupalLogin($this->user);
+    $this->drupalLogin($this->adminUser);
+  }
+
+  /**
+   * Tests that the membership admin dashboard loads with a 200 response.
+   */
+  public function testLoadDashboard() {
+    $this->drupalGet(Url::fromRoute('membership_entity.admin'));
+    $this->assertSession()->statusCodeEquals(200);
+  }
+
+  /**
+   * Tests that the membership type page loads with a 200 response.
+   */
+  public function testLoadMembershipTypes() {
+    $this->drupalGet(Url::fromRoute('entity.membership_entity_type.collection'));
+    $this->assertSession()->statusCodeEquals(200);
   }
 
   /**
    * Tests that the membership list page loads with a 200 response.
    */
-  public function testLoad() {
-    $this->drupalGet(Url::fromRoute('admin/memberships'));
+  public function testLoadMembershipList() {
+    $this->drupalGet(Url::fromRoute('entity.membership_entity.collection'));
     $this->assertSession()->statusCodeEquals(200);
   }
 
