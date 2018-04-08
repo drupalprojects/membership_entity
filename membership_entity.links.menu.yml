@@ -18,6 +18,13 @@ membership_entity.reports:
   parent: 'membership_entity.admin'
   weight: 20
 
+entity.membership_entity.add_page:
+  title: 'Add a Membership'
+  route_name: entity.membership_entity.add_page
+  description: 'Add a new membership record.'
+  parent: membership_entity.admin
+  weight: 0
+
 entity.membership_entity.collection:
   title: 'Membership list'
   route_name: entity.membership_entity.collection

@@ -44,9 +44,9 @@ use Drupal\Core\Entity\EntityTypeInterface;
  *   },
  *   links = {
  *     "collection" = "/admin/memberships/reports/list",
- *     "canonical" = "/membership/{membership_entity}",
  *     "add-page" = "/admin/memberships/add",
- *     "add-form" = "/memberships/add/{membership_entity_type}",
+ *     "add-form" = "/admin/memberships/add/{membership_entity_type}",
+ *     "canonical" = "/membership/{membership_entity}",
  *     "edit-form" = "/membership/{membership_entity}/edit",
  *     "delete-form" = "/membership/{membership_entity}/delete",
   *   },
@@ -126,7 +126,12 @@ class Membership extends ContentEntityBase implements MembershipInterface {
     $fields['member_id'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Member ID'))
       ->setDescription(t('The unique Membership identifier.'))
-      ->setSettings(['text_processing' => 0])
+      ->setSettings([
+        // Hard limit is 191 due to MySQL <= 5.6 key size limit of 767 bytes.
+        // 50 should be plenty.
+        'max_length' => 50,
+        'text_processing' => 0,
+      ])
       ->setDefaultValue('')
       ->setDisplayOptions('view', [
         'label' => 'above',

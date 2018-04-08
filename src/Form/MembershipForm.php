@@ -16,20 +16,7 @@ class MembershipForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    /* @var $entity \Drupal\membership_entity\Entity\MembershipEntity */
     $form = parent::buildForm($form, $form_state);
-
-    if (!$this->entity->isNew()) {
-      $form['new_revision'] = [
-        '#type' => 'checkbox',
-        '#title' => $this->t('Create new revision'),
-        '#default_value' => FALSE,
-        '#weight' => 10,
-      ];
-    }
-
-    $entity = $this->entity;
-
     return $form;
   }
 
@@ -37,35 +24,21 @@ class MembershipForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    $entity = $this->entity;
-
-    // Save as a new revision if requested to do so.
-    if (!$form_state->isValueEmpty('new_revision') && $form_state->getValue('new_revision') != FALSE) {
-      $entity->setNewRevision();
-
-      // If a new revision is created, save the current user as revision author.
-      $entity->setRevisionCreationTime(REQUEST_TIME);
-      $entity->setRevisionUserId(\Drupal::currentUser()->id());
-    }
-    else {
-      $entity->setNewRevision(FALSE);
-    }
-
+    $membership = $this->entity;
     $status = parent::save($form, $form_state);
 
-    switch ($status) {
-      case SAVED_NEW:
-        drupal_set_message($this->t('Created the %label Membership.', [
-          '%label' => $entity->label(),
-        ]));
-        break;
-
-      default:
-        drupal_set_message($this->t('Saved the %label Membership.', [
-          '%label' => $entity->label(),
-        ]));
+    $params = ['%member_id' => $membership->getMemberID()];
+    $messages = [
+      SAVED_NEW => $this->t('Added Membership %member_id.', $params),
+      'default' => $this->t('Saved Membership %member_id.', $params),
+    ];
+    if (isset($messages[$status])) {
+      $this->messenger()->addMessage($messages[$status]);
     }
-    $form_state->setRedirect('entity.membership_entity.canonical', ['membership_entity' => $entity->id()]);
-  }
+    else {
+      $this->messenger()->addMessage($messages['default']);
+    }
 
+    $form_state->setRedirect('entity.membership_entity.canonical', ['membership_entity' => $membership->id()]);
+  }
 }

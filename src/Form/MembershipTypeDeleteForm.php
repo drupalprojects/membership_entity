@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Drupal\membership_entity\Form;
 
@@ -38,14 +39,9 @@ class MembershipTypeDeleteForm extends EntityConfirmFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->entity->delete();
 
-    drupal_set_message(
-      $this->t('content @type: deleted @label.',
-        [
-          '@type' => $this->entity->bundle(),
-          '@label' => $this->entity->label(),
-        ]
-        )
-    );
+    $this->messenger()->addMessage($this->t('Deleted %label membership type.', [
+      '%label' => $this->entity->label(),
+    ]));
 
     $form_state->setRedirectUrl($this->getCancelUrl());
   }
